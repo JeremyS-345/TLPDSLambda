@@ -10,11 +10,6 @@ resource "aws_dynamodb_table" "basic_dynamodb_table" {
     type = "S"
   }
 
-  ttl {
-    attribute_name = "TimeToExist"
-    enabled        = false
-  }
-
   tags = {
     Name        = "dynamodb-table-1"
     Environment = "production"
