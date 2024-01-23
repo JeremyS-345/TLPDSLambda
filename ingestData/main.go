@@ -2,11 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/TLPDSLambda/ingestData/dao"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/rs/zerolog"
+    "github.com/rs/zerolog/log"
+
 )
 
 func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
@@ -22,6 +26,7 @@ func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 }
 
 func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	if req.Headers["content-type"] != "application/json" && req.Headers["Content-Type"] != "application/json" {
 		return clientError(http.StatusNotAcceptable)
 	}
@@ -32,8 +37,10 @@ func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 		return clientError(http.StatusUnprocessableEntity)
 	}
 
+	fmt.Printf("%+v", item)
 	err = dao.PutItem(item)
 	if err != nil {
+		log.Print(err)
 		return serverError(err)
 	}
 
