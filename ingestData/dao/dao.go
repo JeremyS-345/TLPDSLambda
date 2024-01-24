@@ -20,7 +20,8 @@ type Item struct {
 	BucketType string  `json:"bucketType"`
 	ItemType   string  `json:"itemType"`
 	ItemReason string  `json:"reason"`
-	weight     float32 `json:"weight"`
+	Weight     float32 `json:"weight"`
+	Source     string  `json:"source"`
 	CreatedOn  time.Time
 }
 
