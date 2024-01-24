@@ -2,31 +2,26 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/TLPDSLambda/ingestData/dao"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
-	"github.com/rs/zerolog"
-    "github.com/rs/zerolog/log"
-
+	"github.com/rs/zerolog/log"
 )
 
 func router(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	switch req.HTTPMethod {
 	case "GET":
-		//return show(req)
+		return show(req)
 	case "POST":
 		return create(req)
 	default:
 		return clientError(http.StatusMethodNotAllowed)
 	}
-	return events.APIGatewayProxyResponse{}, nil
 }
 
 func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
 	if req.Headers["content-type"] != "application/json" && req.Headers["Content-Type"] != "application/json" {
 		return clientError(http.StatusNotAcceptable)
 	}
@@ -37,7 +32,6 @@ func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 		return clientError(http.StatusUnprocessableEntity)
 	}
 
-	fmt.Printf("%+v", item)
 	err = dao.PutItem(item)
 	if err != nil {
 		log.Print(err)
@@ -46,6 +40,28 @@ func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusAccepted,
+	}, nil
+}
+
+func show(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	isbn := req.QueryStringParameters["itemID"]
+
+	item, err := dao.GetItem(isbn)
+	if err != nil {
+		return serverError(err)
+	}
+	if item.ItemID == "" {
+		return clientError(http.StatusNotFound)
+	}
+
+	js, err := json.Marshal(item)
+	if err != nil {
+		return serverError(err)
+	}
+
+	return events.APIGatewayProxyResponse{
+		StatusCode: http.StatusOK,
+		Body:       string(js),
 	}, nil
 }
 
