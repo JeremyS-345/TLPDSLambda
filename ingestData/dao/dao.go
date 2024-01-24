@@ -16,10 +16,11 @@ import (
 var db = dynamodb.New(session.New(), aws.NewConfig().WithRegion(os.Getenv("AWS_REGION")))
 
 type Item struct {
-	ItemID     string `json:"itemID"`
-	BucketType string `json:"bucketType"`
-	ItemType   string `json:"itemType"`
-	ItemReason string `json:"itemReason"`
+	ItemID     string  `json:"itemID"`
+	BucketType string  `json:"bucketType"`
+	ItemType   string  `json:"itemType"`
+	ItemReason string  `json:"reason"`
+	weight     float32 `json:"weight"`
 	CreatedOn  time.Time
 }
 
