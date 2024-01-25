@@ -32,7 +32,7 @@ func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 		return clientError(http.StatusUnprocessableEntity)
 	}
 
-	err = dao.PutItem(item)
+	newItemID, err := dao.PutItem(item)
 	if err != nil {
 		log.Print(err)
 		return serverError(err)
@@ -40,6 +40,7 @@ func create(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, 
 
 	return events.APIGatewayProxyResponse{
 		StatusCode: http.StatusAccepted,
+		Body: newItemID,
 	}, nil
 }
 

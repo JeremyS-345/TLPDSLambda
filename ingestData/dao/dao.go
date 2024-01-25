@@ -25,7 +25,7 @@ type Item struct {
 	CreatedOn  time.Time
 }
 
-func PutItem(item *Item) error {
+func PutItem(item *Item) (string, error) {
 	if item.ItemID == "" {
 		item.ItemID = uuid.New().String()
 	}
@@ -33,13 +33,13 @@ func PutItem(item *Item) error {
 
 	dynamoMappedItem, err := dynamodbattribute.MarshalMap(item)
 	if err != nil {
-		return err
+		return "", err
 	}
 	_, err = db.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String("TLPDS"),
 		Item:      dynamoMappedItem,
 	})
-	return err
+	return item.ItemID, err
 }
 
 func GetItem(itemID string) (Item, error) {
